@@ -15,6 +15,8 @@ declare class Aseprite {
   width: number;
   height: number;
   numFrames: number;
+  userDataText?: string;
+  userDataColor?: Color;
   constructor(buffer: Buffer, name: string): void;
   readByte(offset: number): number;
   readWord(offset: number): number;
@@ -63,6 +65,8 @@ declare namespace Aseprite {
     celType: number;
     w: number;
     h: number;
+    userDataText?: string;
+    userDataColor?: Color;
     tilemapMetadata?: {
       bitsPerTile: number;
       bitmaskForTileId: number;
@@ -78,6 +82,8 @@ declare namespace Aseprite {
     to: number;
     animDirection: string;
     color: string;
+    userDataText?: string;
+    userDataColor?: Color;
   }
   export interface Layer {
     flags: number;
@@ -86,12 +92,16 @@ declare namespace Aseprite {
     blendMode: number;
     opacity: number;
     name: string;
+    userDataText?: string;
+    userDataColor?: Color;
     tilesetIndex?: number;
   }
   export interface Slice {
     flags: number;
     keys: SliceKey[];
     name: string;
+    userDataText?: string;
+    userDataColor?: Color;
   }
   export interface SliceKey {
     frameNumber: number;

@@ -4,6 +4,7 @@ class Aseprite {
   constructor(buffer, name) {
     this._offset = 0;
     this._buffer = buffer;
+    this._userDataTarget = this
     this.frames = [];
     this.layers = [];
     this.slices = [];
@@ -128,27 +129,34 @@ class Aseprite {
         case 0x0011:
         case 0x2016:
         case 0x2017:
-        case 0x2020:
           this.skipBytes(chunkData.chunkSize - 6);
           break;
         case 0x2022:
           this.readSliceChunk();
+          this._userDataTarget = this.slices[this.slices.length - 1];
           break;
         case 0x2004:
           this.readLayerChunk();
+          this._userDataTarget = this.layers[this.layers.length - 1];
           break;
         case 0x2005:
           let celData = this.readCelChunk(chunkData.chunkSize);
           cels.push(celData);
+          this._userDataTarget = celData;
           break;
         case 0x2007:
           this.readColorProfileChunk();
           break;
         case 0x2018:
           this.readFrameTagsChunk();
+          this._userDataTarget = this.tags[0];
           break;
         case 0x2019:
           this.palette = this.readPaletteChunk();
+          this._userDataTarget = this;
+          break;
+        case 0x2020:
+          this.readUserDataChunk();
           break;
         case 0x2023:
           this.tilesets.push(this.readTilesetChunk());
@@ -232,6 +240,28 @@ class Aseprite {
     }
     this.colorDepth === 8 ? palette.index = this.paletteIndex : '';
     return palette;
+  }
+  readUserDataChunk() {
+    // Get the target object to write user data into. If there is
+    // no target, user data will be parsed into an empty object and discarded.
+    const target = this._userDataTarget || {};
+    const flags = this.readNextDWord();
+    if ((flags & 1) !== 0) {
+      target.userDataText = this.readNextString();
+    }
+    if ((flags & 2) !== 0) {
+      let red = this.readNextByte();
+      let green = this.readNextByte();
+      let blue = this.readNextByte();
+      let alpha = this.readNextByte();
+      target.userDataColor = { red, green, blue, alpha, name: "" };
+    }
+    // If the target is a tag, select the next tag as the next target.
+    // Otherwise we have no next target until after some other chunk is parsed.
+    let nextTarget = undefined;
+    const targetTagIndex = this.tags.findIndex((tag) => tag === target);
+    if (targetTagIndex >= 0) nextTarget = this.tags[targetTagIndex + 1];
+    this._userDataTarget = nextTarget;
   }
   readTilesetChunk() {
     const id = this.readNextDWord();
