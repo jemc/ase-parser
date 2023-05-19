@@ -351,13 +351,13 @@ class Aseprite {
     const h = this.readNextWord();
     const chunkBase = { layerIndex, xpos: x, ypos: y, opacity, celType, w, h };
     if (celType === 0 || celType === 2) {
-      return { ...chunkBase, ...this.readImageCelChunk(chunkSize) }
+      return { ...chunkBase, ...this.readImageCelChunk(celType, chunkSize) }
     }
     if (celType === 3) {
       return { ...chunkBase, ...this.readTilemapCelChunk(chunkSize) }
     }
   }
-  readImageCelChunk(chunkSize) {
+  readImageCelChunk(celType, chunkSize) {
     const buff = this.readNextRawBytes(chunkSize - 26); //take the first 20 bytes off for the data above and chunk info
     let rawCel;
     if(celType === 2) {
