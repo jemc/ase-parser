@@ -16,8 +16,8 @@ declare class Aseprite {
   height: number;
   numFrames: number;
   userDataText?: string;
-  userDataColor?: Color;
-  constructor(buffer: Buffer, name: string): void;
+  userDataColor?: Aseprite.Color;
+  constructor(buffer: Buffer, name: string);
   readByte(offset: number): number;
   readWord(offset: number): number;
   readShort(offset: number): number;
